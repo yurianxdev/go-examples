@@ -24,10 +24,16 @@ func main() {
 	}
 	defer db.Close()
 	db.AutoMigrate(&models.User{})
-	log.Printf("Database runing\n")
 
+	log.Printf("Database runing\n")
 	log.Printf("Initializing the server...\n")
+
+	// Handler para users/create, adentro se encuentra la logica para determinar su metodo,
+	// pero una solucion mas elegante podria hacerse usando un multiplexer de terceros o algun
+	// framework.
 	http.Handle("/users/create", http.HandlerFunc(users))
+
+	// Escucha conexiones y las acepta con el handler por default (por eso el nil).
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatalf("Error serving: %v\n", err)
 	}
@@ -35,6 +41,7 @@ func main() {
 
 func users(w http.ResponseWriter, req *http.Request) {
 	log.Printf("Request Income: %v\n", req)
+	// Retorna un bad request si el method no es POST.
 	if req.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusBadRequest)
 		log.Printf("Responsed Error\n")
@@ -45,6 +52,7 @@ func users(w http.ResponseWriter, req *http.Request) {
 
 	dec := json.NewDecoder(req.Body)
 	dec.DisallowUnknownFields()
+	// Decodifica el body del request en un User.
 	err := dec.Decode(&user)
 	if err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
@@ -52,17 +60,15 @@ func users(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Crea el usuario en la base de datos.
 	if err := db.Create(&user).Error; err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		log.Printf("Responsed Error: %v\n", err)
 		return
 	}
 
-	res, err := json.Marshal(struct {
-		Message string `json:"message"`
-	}{
-		Message: "user created",
-	})
+	// Crea JSON con la respuesta exitosa
+	res, err := json.Marshal(models.ResponseSucceed{Message: "user created"})
 
 	log.Printf("Created user: %v", user)
 	w.Header().Set("Content-Type", "application/json")
