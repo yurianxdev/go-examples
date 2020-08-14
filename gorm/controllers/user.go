@@ -9,7 +9,7 @@ import (
 	"github.com/yurianxdev/go-examples/gorm/models"
 )
 
-func Users(w http.ResponseWriter, req *http.Request) {
+func UsersCreate(w http.ResponseWriter, req *http.Request) {
 	log.Printf("Request Income: %v\n", req)
 	// Retorna un bad request si el method no es POST.
 	if req.Method != http.MethodPost {

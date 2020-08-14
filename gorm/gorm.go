@@ -30,7 +30,7 @@ func main() {
 	// Handler para users/create, adentro se encuentra la logica para determinar su metodo,
 	// pero una solucion mas elegante podria hacerse usando un multiplexer de terceros o algun
 	// framework.
-	http.Handle("/users/create", http.HandlerFunc(controllers.Users))
+	http.Handle("/users/create", http.HandlerFunc(controllers.UsersCreate))
 
 	// Escucha conexiones y las acepta con el handler por default (por eso el nil).
 	if err := http.ListenAndServe(":8080", nil); err != nil {
