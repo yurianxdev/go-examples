@@ -1,0 +1,1 @@
+module "github.com/yurianxdev/go-examples"
